@@ -6,11 +6,12 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     private static PlayerController instance;
+    [SerializeField]    private AnimationsController animController;
 
     //  Input Controller
     private PlayerInput inputs;
     private bool run;
-    private bool attack;
+    private bool attackPeformed;
 
     //  Player Config
     private Rigidbody rb;
@@ -23,13 +24,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float speedRun;
     [SerializeField] private float rotateSpeed = 30f;
     
-    //  Animations Controller
-    private Animator anim;
-    private bool isWalking;
-    private bool isRun;    
-
-    
-   
 
 #region Inputs
     public void SetMovimento(InputAction.CallbackContext value)
@@ -44,7 +38,7 @@ public class PlayerController : MonoBehaviour
     public void SetRun(InputAction.CallbackContext value)
     {
         if(value.started)
-            run = true;
+            run = true;  
         if(value.performed)
             run = true;
         if(value.canceled)
@@ -53,24 +47,17 @@ public class PlayerController : MonoBehaviour
 
     public void SetAttack(InputAction.CallbackContext value)
     {
-        if(value.started)
-            attack = true;
         if(value.performed)
-            attack = true;
+            attackPeformed = true;
         if(value.canceled)
-            attack = false;
+            attackPeformed = false;
     }
     
 #endregion
 
 #region Unity General
-    private void Update()
-    {
-        Walking();
-        LookView();
-    }
-
      private void Awake() {
+
         if(instance == null)
         {
             instance = this;
@@ -81,7 +68,6 @@ public class PlayerController : MonoBehaviour
         inputs = new PlayerInput();
 
         rb = GetComponent<Rigidbody>();
-        anim = GetComponent<Animator>();
     }
     
     private void Start()
@@ -89,13 +75,26 @@ public class PlayerController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
     }
 
+    private void Update()
+    {
+        InputController();
+        LookView();
+    }
+
 #endregion
+
+    public void InputController()
+    {
+        Walking();
+
+        if(attackPeformed){
+            Debug.Log("ta atacando");
+            Attack();
+        }
+    }
 
     public void Walking()
     {
-        // Vector3 move = new Vector3(movimento.x, 0, movimento.y);
-        // rb.AddForce( move * speed * Time.fixedDeltaTime * 300);
-
         Vector3 move = new Vector3(movimento.x, 0, movimento.y);
 
         move = transform.forward * move.z + transform.right * move.x;
@@ -104,40 +103,33 @@ public class PlayerController : MonoBehaviour
         if(run)
         {
             speed = speedRun;
-            anim.SetBool("isRun", true);
-            anim.SetBool("isWalking", false);
+            animController.RunOn();
+            animController.MoveOff();
         }
         if(!run)
         {
             speed = speedWalking;
-            anim.SetBool("isRun", false);
+            animController.RunOff();
         }
 
         if(speed == speedWalking)
         {
-            anim.SetBool("isWalking", true);
+            animController.MoveOn();
         }
         if(movimento.magnitude == 0)
         {
-            anim.SetBool("isWalking", false);
+            animController.MoveOff();
         }
     }
 
     public void Attack()
     {
-        
+        animController.AttackOn();
     }
 
     public void LookView()
     {
         transform.Rotate(Vector3.up * rotate * rotateSpeed * Time.deltaTime);
-        // Vector3 lookAt = new Vector3(look.x, 0, look.y);
-
-        // transform.rotation = Quaternion.Euler(
-        //     lookAt.y * Time.deltaTime,
-        //     lookAt.x * Time.deltaTime,
-        //     0
-        // );
     }
     
 }
