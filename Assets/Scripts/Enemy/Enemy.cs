@@ -1,16 +1,21 @@
+using System.Security.Cryptography;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class Enemy : MonoBehaviour
 {
+    [SerializeField] private PlayerController player;
     [SerializeField] private Transform target;
     [SerializeField] private float speedEnemy = 10;
     private Rigidbody rb;
 
+    private float life = 4;
+    public float damage = 1;
+
     private void Start()
     {
-        rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>(); 
     }
 
     private void MoveToPlayer()
@@ -24,13 +29,21 @@ public class Enemy : MonoBehaviour
     {
         if(collider.gameObject.CompareTag("Player"))
         {
-            Debug.Log("INIMIGO");
             MoveToPlayer();
+            player.emCombate = true;
         } 
     }
 
+    public void TakeDamageEnemy(float damage)
+    {
+        life -= damage;
+        if(life <= 0)
+        {
+            Destroy(gameObject);
+        }
+    }
     private void OnTriggerExit(Collider collider)
     {
-        Debug.Log("INIMIGO SUMIU");
+        player.emCombate = false;
     }
 }

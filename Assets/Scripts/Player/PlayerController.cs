@@ -1,10 +1,15 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField]private HealthBar _healthBar;
+    [SerializeField] private TakeCoin coins;
+    [SerializeField] private Enemy enemy;
     private static PlayerController instance;
     [SerializeField]    private AnimationsController animController;
 
@@ -12,12 +17,25 @@ public class PlayerController : MonoBehaviour
     private PlayerInput inputs;
     private bool run;
     private bool attackPeformed;
+    private bool defendPerfomed;
 
     //  Player Config
     private Rigidbody rb;
     private Vector2 movimento;
     private Vector2 look;
     private float rotate;
+    public float maxLife = 5;
+    public float currentLife;
+    public float damage = 2;
+    public bool emCombate;
+    public GameObject PainelDeath;
+    public GameObject PainelBloqueio;
+    public bool tocou;
+    public GameObject particula;
+
+    
+
+
     
     [SerializeField] private float speed = 10;
     [SerializeField] private float speedWalking;
@@ -44,13 +62,20 @@ public class PlayerController : MonoBehaviour
         if(value.canceled)
             run = false;
     }
-
     public void SetAttack(InputAction.CallbackContext value)
     {
         if(value.performed)
             attackPeformed = true;
         if(value.canceled)
             attackPeformed = false;
+    }
+    public void SetDefend(InputAction.CallbackContext value)
+    {
+        if(value.performed) 
+            defendPerfomed = true;
+
+        if(value.canceled)  
+            defendPerfomed = false;
     }
     
 #endregion
@@ -73,12 +98,21 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        currentLife = maxLife;
+
+        _healthBar.RemoveHealthBar(maxLife, currentLife);
     }
 
     private void Update()
     {
         InputController();
         LookView();
+
+        if(currentLife < maxLife && emCombate == false) 
+        {
+            currentLife += 1;
+            _healthBar.AddHealthBar(currentLife);
+        }
     }
 
 #endregion
@@ -88,9 +122,10 @@ public class PlayerController : MonoBehaviour
         Walking();
 
         if(attackPeformed){
-            Debug.Log("ta atacando");
             Attack();
         }
+        if(defendPerfomed) 
+            Deffend();
     }
 
     public void Walking()
@@ -122,14 +157,46 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void TakeDamage()
+    {
+        currentLife -= 1;
+        Debug.Log("Dando dano");
+        _healthBar.RemoveHealthBar(maxLife, currentLife);
+        if(currentLife <= 0) PainelDeath.SetActive(true);
+    }
+
     public void Attack()
     {
         animController.AttackOn();
     }
-
+    public void Deffend()
+    {
+        animController.DefendOn();
+    }
     public void LookView()
     {
         transform.Rotate(Vector3.up * rotate * rotateSpeed * Time.deltaTime);
     }
+
+    private void OnTriggerEnter(Collider col)
+    {
+        if(col.gameObject.CompareTag("Enemy"))
+        {
+            TakeDamage();            
+        }
+        
+        // if(col.gameObject.CompareTag("Coins"))
+        // {
+        //     Debug.Log("Bola");
+        //     Destroy(col.gameObject);
+        //     coins.amount++;
+        //     coins.moedas.text = coins.amount.ToString();
+        // }
+    }
+    private void OnTriggerExit(Collider col)
+    {
+        PainelBloqueio.SetActive(false);
+    }
+
     
 }

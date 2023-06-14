@@ -4,10 +4,18 @@ using UnityEngine;
 
 public class EnemyController : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider col)
-    {
-        if(col.gameObject.CompareTag("Player")){
-            Debug.Log("Inimigo no range");
+    [SerializeField]private PlayerController player;
+    [SerializeField] private Enemy enemy;
+    AnimationsController animations;
+
+    private void Start() {
+        animations = new AnimationsController();
+    }
+
+    private  void OnTriggerEnter(Collider other) {
+        if(other.CompareTag("Player"))
+        {
+            enemy.TakeDamageEnemy(player.damage);
         }
     }
 }

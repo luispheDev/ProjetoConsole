@@ -11,7 +11,7 @@ public class AnimationsController : MonoBehaviour
     {
         anim = GetComponent<Animator>();
     }
-
+#region  PLayer
     //Movimentação
     public void MoveOn() => anim.SetBool("isWalking", true);
     public void MoveOff() => anim.SetBool("isWalking", false);
@@ -20,4 +20,14 @@ public class AnimationsController : MonoBehaviour
 
     //Ataques
     public void AttackOn() => anim.SetTrigger("Attack01");
+
+    //Defesa
+    public void DefendOn() => anim.SetTrigger("Defend");
+
+#endregion
+
+#region Enemy
+    public void AttackEnemyOn() => anim.SetBool("isAttack", true);
+
+#endregion
 }
