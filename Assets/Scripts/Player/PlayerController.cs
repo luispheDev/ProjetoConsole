@@ -30,8 +30,8 @@ public class PlayerController : MonoBehaviour
     public bool emCombate;
     public GameObject PainelDeath;
     public GameObject PainelBloqueio;
+    public GameObject Venceu;
     public bool tocou;
-    public GameObject particula;
 
     
 
@@ -160,7 +160,6 @@ public class PlayerController : MonoBehaviour
     public void TakeDamage()
     {
         currentLife -= 1;
-        Debug.Log("Dando dano");
         _healthBar.RemoveHealthBar(maxLife, currentLife);
         if(currentLife <= 0) PainelDeath.SetActive(true);
     }
@@ -182,16 +181,14 @@ public class PlayerController : MonoBehaviour
     {
         if(col.gameObject.CompareTag("Enemy"))
         {
-            TakeDamage();            
+            if(defendPerfomed)
+            {
+                PainelBloqueio.SetActive(true);
+            }else{
+                TakeDamage();   
+            }
+                     
         }
-        
-        // if(col.gameObject.CompareTag("Coins"))
-        // {
-        //     Debug.Log("Bola");
-        //     Destroy(col.gameObject);
-        //     coins.amount++;
-        //     coins.moedas.text = coins.amount.ToString();
-        // }
     }
     private void OnTriggerExit(Collider col)
     {
